@@ -86,9 +86,30 @@
 }
 
 .dark {
-  /* mirrors :root — app is always dark unless overridden */
   --background: oklch(0.145 0.02 270);
   --foreground: oklch(0.97 0.01 260);
+}
+
+.light {
+  --background: oklch(0.99 0.005 260);
+  --foreground: oklch(0.18 0.02 270);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.02 270);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.02 270);
+  --secondary: oklch(0.96 0.01 260);
+  --secondary-foreground: oklch(0.2 0.02 270);
+  --muted: oklch(0.96 0.008 260);
+  --muted-foreground: oklch(0.45 0.02 268);
+  --accent: oklch(0.94 0.02 275);
+  --accent-foreground: oklch(0.2 0.02 270);
+  --border: oklch(0.88 0.01 268 / 0.9);
+  --input: oklch(0.96 0.008 260);
+  --sidebar: oklch(0.97 0.008 260);
+  --sidebar-foreground: oklch(0.22 0.02 270);
+  --sidebar-accent: oklch(0.93 0.015 265);
+  --sidebar-accent-foreground: oklch(0.2 0.02 270);
+  --sidebar-border: oklch(0.88 0.01 268 / 0.9);
 }
 
 @layer base {
