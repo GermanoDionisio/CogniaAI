@@ -121,9 +121,34 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     background-image:
-      radial-gradient(1200px 600px at 10% -10%, oklch(0.68 0.19 265 / 0.12), transparent 60%),
-      radial-gradient(900px 500px at 90% 0%, oklch(0.66 0.22 305 / 0.10), transparent 60%);
+      radial-gradient(1200px 600px at 10% -10%, color-mix(in oklab, var(--brand) 15%, transparent), transparent 60%),
+      radial-gradient(900px 500px at 90% 0%, color-mix(in oklab, var(--accent-2) 12%, transparent), transparent 60%);
     background-attachment: fixed;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Animated aurora background */
+  html[data-animated-bg="on"] body::before {
+    content: "";
+    position: fixed;
+    inset: -20%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(600px 400px at 20% 30%, color-mix(in oklab, var(--brand) 30%, transparent), transparent 60%),
+      radial-gradient(700px 500px at 80% 70%, color-mix(in oklab, var(--accent-2) 28%, transparent), transparent 60%),
+      radial-gradient(500px 400px at 60% 20%, color-mix(in oklab, var(--brand) 20%, transparent), transparent 60%);
+    filter: blur(60px);
+    animation: cognia-aurora 22s ease-in-out infinite alternate;
+    opacity: 0.7;
+  }
+  html.light[data-animated-bg="on"] body::before { opacity: 0.5; }
+
+  @keyframes cognia-aurora {
+    0%   { transform: translate3d(0,0,0) scale(1);   }
+    50%  { transform: translate3d(4%,-3%,0) scale(1.08); }
+    100% { transform: translate3d(-3%,4%,0) scale(1.05); }
   }
 }
 
