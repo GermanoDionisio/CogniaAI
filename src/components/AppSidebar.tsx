@@ -175,10 +175,13 @@ export function AppSidebar() {
       </div>
 
       <div className="border-t border-sidebar-border p-3 space-y-1">
-        <button className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm hover:bg-sidebar-accent transition-colors">
+        <Link
+          to="/settings"
+          className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm hover:bg-sidebar-accent transition-colors"
+        >
           <Settings className="w-4 h-4" />
           Configurações
-        </button>
+        </Link>
         <button
           onClick={signOut}
           className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm hover:bg-sidebar-accent transition-colors"
