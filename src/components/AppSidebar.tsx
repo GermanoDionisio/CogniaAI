@@ -55,6 +55,31 @@ export function AppSidebar() {
   const favorites = filtered.filter((c) => c.favorite);
   const recent = filtered.filter((c) => !c.favorite);
 
+  // Agrupar recentes por data
+  const now = new Date();
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const today = startOfDay(now);
+  const yesterday = today - 86400000;
+  const weekAgo = today - 7 * 86400000;
+  const monthAgo = today - 30 * 86400000;
+
+  type Group = { label: string; items: typeof recent };
+  const groups: Group[] = [
+    { label: "Hoje", items: [] },
+    { label: "Ontem", items: [] },
+    { label: "Últimos 7 dias", items: [] },
+    { label: "Últimos 30 dias", items: [] },
+    { label: "Mais antigas", items: [] },
+  ];
+  for (const c of recent) {
+    const t = new Date(c.updated_at ?? c.created_at ?? now).getTime();
+    if (t >= today) groups[0].items.push(c);
+    else if (t >= yesterday) groups[1].items.push(c);
+    else if (t >= weekAgo) groups[2].items.push(c);
+    else if (t >= monthAgo) groups[3].items.push(c);
+    else groups[4].items.push(c);
+  }
+
   async function signOut() {
     await supabase.auth.signOut();
     toast.success("Você saiu");
@@ -114,22 +139,27 @@ export function AppSidebar() {
           </SidebarSection>
         )}
 
-        <SidebarSection label="Histórico" icon={MessageSquare}>
-          {recent.length === 0 && (
+        {recent.length === 0 && (
+          <SidebarSection label="Histórico" icon={MessageSquare}>
             <p className="text-xs text-muted-foreground px-3 py-2">Nenhuma conversa ainda.</p>
-          )}
-          {recent.map((c) => (
-            <ThreadItem
-              key={c.id}
-              id={c.id}
-              title={c.title}
-              active={activeId === c.id}
-              favorite={false}
-              onDelete={() => deleteMut.mutate(c.id)}
-              onToggleFav={() => favMut.mutate({ id: c.id, favorite: true })}
-            />
-          ))}
-        </SidebarSection>
+          </SidebarSection>
+        )}
+
+        {groups.filter((g) => g.items.length > 0).map((g) => (
+          <SidebarSection key={g.label} label={g.label} icon={MessageSquare}>
+            {g.items.map((c) => (
+              <ThreadItem
+                key={c.id}
+                id={c.id}
+                title={c.title}
+                active={activeId === c.id}
+                favorite={false}
+                onDelete={() => deleteMut.mutate(c.id)}
+                onToggleFav={() => favMut.mutate({ id: c.id, favorite: true })}
+              />
+            ))}
+          </SidebarSection>
+        ))}
 
         <div className="mt-4 border-t border-sidebar-border pt-3">
           {navItems.map((n) => (
