@@ -150,12 +150,16 @@ export function ChatWindow({ threadId, initialMessages = [] }: ChatWindowProps) 
       navigate({ to: "/chat/$threadId", params: { threadId: convId }, replace: true });
     }
 
-    const files = attachedFiles.length ? attachedFiles : undefined;
+    let fileList: FileList | undefined;
+    if (attachedFiles.length) {
+      const dt = new DataTransfer();
+      attachedFiles.forEach((f) => dt.items.add(f));
+      fileList = dt.files;
+    }
     setInput("");
     setAttachedFiles([]);
     try {
-      // AI SDK aceita files opcionais no sendMessage
-      await sendMessage({ text: text || "Analise o(s) arquivo(s) enviado(s).", files });
+      await sendMessage({ text: text || "Analise o(s) arquivo(s) enviado(s).", files: fileList });
     } catch (err) {
       toast.error("Falha ao enviar", { description: (err as Error).message });
     }
