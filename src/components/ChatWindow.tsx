@@ -103,22 +103,38 @@ export function ChatWindow({ threadId, initialMessages = [] }: ChatWindowProps) 
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const acceptRef = useRef<string>("*/*");
+  const convIdRef = useRef<string | null>(threadId);
+  const pendingNavRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    convIdRef.current = threadId;
+  }, [threadId]);
 
   const createMut = useMutation({
     mutationFn: async (title?: string) => createFn({ data: { title } }),
   });
 
-  const transport = buildTransport(threadId);
+  const transportRef = useRef<DefaultChatTransport<UIMessage> | null>(null);
+  if (!transportRef.current) {
+    transportRef.current = buildTransport(() => convIdRef.current);
+  }
+
   const { messages, sendMessage, status, stop, regenerate, setMessages } = useChat({
     id: threadId ?? "new",
     messages: initialMessages,
-    transport,
+    transport: transportRef.current,
     onError: (err) => {
       toast.error("Erro ao gerar resposta", { description: err.message });
     },
     onFinish: () => {
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
-      if (threadId) queryClient.invalidateQueries({ queryKey: ["conversation", threadId] });
+      const current = convIdRef.current;
+      if (current) queryClient.invalidateQueries({ queryKey: ["conversation", current] });
+      const pending = pendingNavRef.current;
+      if (pending) {
+        pendingNavRef.current = null;
+        navigate({ to: "/chat/$threadId", params: { threadId: pending }, replace: true });
+      }
     },
   });
 
@@ -142,13 +158,17 @@ export function ChatWindow({ threadId, initialMessages = [] }: ChatWindowProps) 
     const text = input.trim();
     if ((!text && attachedFiles.length === 0) || isLoading) return;
 
-    let convId = threadId;
-    if (!convId) {
+    if (!convIdRef.current) {
       const title = (text || attachedFiles[0]?.name || "Nova conversa").slice(0, 60);
-      const created = await createMut.mutateAsync(title);
-      convId = created.id;
-      queryClient.invalidateQueries({ queryKey: ["conversations"] });
-      navigate({ to: "/chat/$threadId", params: { threadId: convId }, replace: true });
+      try {
+        const created = await createMut.mutateAsync(title);
+        convIdRef.current = created.id;
+        pendingNavRef.current = created.id;
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      } catch (err) {
+        toast.error("Não foi possível criar a conversa", { description: (err as Error).message });
+        return;
+      }
     }
 
     let fileList: FileList | undefined;
@@ -159,6 +179,7 @@ export function ChatWindow({ threadId, initialMessages = [] }: ChatWindowProps) 
     }
     setInput("");
     setAttachedFiles([]);
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
     try {
       await sendMessage({ text: text || "Analise o(s) arquivo(s) enviado(s).", files: fileList });
     } catch (err) {
