@@ -8,8 +8,8 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
-    "lint": "eslint .",
-    "format": "prettier --write ."
+    "lint": "eslint frontend",
+    "format": "prettier --write frontend ."
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^3.0.7",

@@ -5,6 +5,7 @@ import { z } from "zod";
 export const listConversations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    if (!context.userId) return [];
     const { data, error } = await context.supabase
       .from("conversations")
       .select("id,title,favorite,updated_at,created_at")
@@ -17,6 +18,7 @@ export const getConversation = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
+    if (!context.userId) return null;
     const { data: conv, error } = await context.supabase
       .from("conversations")
       .select("id,title,favorite,updated_at,created_at")
@@ -37,6 +39,7 @@ export const createConversation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ title: z.string().optional() }).parse(d ?? {}))
   .handler(async ({ context, data }) => {
+    if (!context.userId) return { id: null };
     const { data: row, error } = await context.supabase
       .from("conversations")
       .insert({ user_id: context.userId, title: data.title ?? "Nova conversa" })
@@ -48,7 +51,9 @@ export const createConversation = createServerFn({ method: "POST" })
 
 export const renameConversation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid(), title: z.string().min(1).max(120) }).parse(d))
+  .inputValidator((d: unknown) =>
+    z.object({ id: z.string().uuid(), title: z.string().min(1).max(120) }).parse(d),
+  )
   .handler(async ({ context, data }) => {
     const { error } = await context.supabase
       .from("conversations")
@@ -60,8 +65,11 @@ export const renameConversation = createServerFn({ method: "POST" })
 
 export const toggleFavorite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid(), favorite: z.boolean() }).parse(d))
+  .inputValidator((d: unknown) =>
+    z.object({ id: z.string().uuid(), favorite: z.boolean() }).parse(d),
+  )
   .handler(async ({ context, data }) => {
+    if (!context.userId) return { ok: false };
     const { error } = await context.supabase
       .from("conversations")
       .update({ favorite: data.favorite })
@@ -74,6 +82,7 @@ export const deleteConversation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
+    if (!context.userId) return { ok: false };
     const { error } = await context.supabase.from("conversations").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };

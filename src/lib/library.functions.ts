@@ -13,6 +13,7 @@ export type LibraryFile = {
 export const getLibrary = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    if (!context.userId) return { conversations: [], files: [] };
     const { data: conversations, error } = await context.supabase
       .from("conversations")
       .select("id,title,favorite,updated_at,created_at")

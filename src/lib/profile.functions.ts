@@ -5,6 +5,7 @@ import { z } from "zod";
 export const getProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    if (!context.userId) return null;
     const { data, error } = await context.supabase
       .from("profiles")
       .select("id,display_name,first_name,last_name,phone,avatar_url,preferences")
@@ -26,10 +27,8 @@ export const updateProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => profileSchema.parse(d))
   .handler(async ({ context, data }) => {
-    const { error } = await context.supabase
-      .from("profiles")
-      .update(data)
-      .eq("id", context.userId);
+    if (!context.userId) return { ok: false };
+    const { error } = await context.supabase.from("profiles").update(data).eq("id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
