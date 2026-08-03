@@ -5,15 +5,13 @@ import {
   Plus,
   MessageSquare,
   Star,
-  FolderOpen,
   Library,
-  FileText,
-  Image as ImageIcon,
   Settings,
   Search,
   Trash2,
   Sparkles,
   LogOut,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 import { listConversations, deleteConversation, toggleFavorite } from "@/lib/conversations.functions";
@@ -21,7 +19,7 @@ import { CogniaLogo } from "@/components/CogniaLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export function AppSidebar() {
+export function AppSidebar({ open = false, onClose = () => {} }: { open?: boolean; onClose?: () => void }) {
   const list = useServerFn(listConversations);
   const del = useServerFn(deleteConversation);
   const fav = useServerFn(toggleFavorite);
