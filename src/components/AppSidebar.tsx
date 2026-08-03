@@ -86,18 +86,23 @@ export function AppSidebar() {
     navigate({ to: "/auth" });
   }
 
-  const navItems = [
-    { icon: FolderOpen, label: "Projetos" },
-    { icon: Library, label: "Biblioteca" },
-    { icon: FileText, label: "Documentos" },
-    { icon: ImageIcon, label: "Imagens" },
-  ];
-
   return (
-    <aside className="w-72 shrink-0 h-screen flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-      <div className="p-4 border-b border-sidebar-border">
+    <>
+      {open && (
+        <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden" onClick={onClose} />
+      )}
+      <aside
+        className={`w-72 shrink-0 h-screen flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground fixed inset-y-0 left-0 z-50 transition-transform md:static md:translate-x-0 ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+      <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
         <CogniaLogo />
+        <button onClick={onClose} className="md:hidden p-1 rounded-lg hover:bg-sidebar-accent" aria-label="Fechar menu">
+          <X className="w-4 h-4" />
+        </button>
       </div>
+
 
       <div className="p-3">
         <Link
