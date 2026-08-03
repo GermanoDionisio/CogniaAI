@@ -34,7 +34,7 @@ import { Button } from "@/components/ui/button";
 import { createConversation } from "@/lib/conversations.functions";
 import { toast } from "sonner";
 
-function buildTransport(conversationId: string | null) {
+function buildTransport(getConversationId: () => string | null) {
   return new DefaultChatTransport({
     api: "/api/chat",
     fetch: async (input, init) => {
@@ -43,6 +43,7 @@ function buildTransport(conversationId: string | null) {
       const headers = new Headers(init?.headers);
       if (token) headers.set("Authorization", `Bearer ${token}`);
       let body = init?.body;
+      const conversationId = getConversationId();
       if (typeof body === "string" && conversationId) {
         try {
           const parsed = JSON.parse(body);
