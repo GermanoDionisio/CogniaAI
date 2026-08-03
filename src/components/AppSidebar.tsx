@@ -167,21 +167,22 @@ export function AppSidebar() {
         ))}
 
         <div className="mt-4 border-t border-sidebar-border pt-3">
-          {navItems.map((n) => (
-            <button
-              key={n.label}
-              className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent transition-colors"
-            >
-              <n.icon className="w-4 h-4" />
-              {n.label}
-            </button>
-          ))}
+          <Link
+            to="/library"
+            onClick={onClose}
+            className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent transition-colors"
+            activeProps={{ className: "bg-sidebar-accent text-sidebar-foreground" }}
+          >
+            <Library className="w-4 h-4" />
+            Biblioteca
+          </Link>
         </div>
       </div>
 
       <div className="border-t border-sidebar-border p-3 space-y-1">
         <Link
           to="/settings"
+          onClick={onClose}
           className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm hover:bg-sidebar-accent transition-colors"
         >
           <Settings className="w-4 h-4" />
@@ -207,7 +208,8 @@ export function AppSidebar() {
           </div>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
 
