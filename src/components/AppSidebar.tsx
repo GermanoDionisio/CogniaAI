@@ -5,15 +5,13 @@ import {
   Plus,
   MessageSquare,
   Star,
-  FolderOpen,
   Library,
-  FileText,
-  Image as ImageIcon,
   Settings,
   Search,
   Trash2,
   Sparkles,
   LogOut,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 import { listConversations, deleteConversation, toggleFavorite } from "@/lib/conversations.functions";
@@ -21,7 +19,7 @@ import { CogniaLogo } from "@/components/CogniaLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export function AppSidebar() {
+export function AppSidebar({ open = false, onClose = () => {} }: { open?: boolean; onClose?: () => void }) {
   const list = useServerFn(listConversations);
   const del = useServerFn(deleteConversation);
   const fav = useServerFn(toggleFavorite);
@@ -86,18 +84,23 @@ export function AppSidebar() {
     navigate({ to: "/auth" });
   }
 
-  const navItems = [
-    { icon: FolderOpen, label: "Projetos" },
-    { icon: Library, label: "Biblioteca" },
-    { icon: FileText, label: "Documentos" },
-    { icon: ImageIcon, label: "Imagens" },
-  ];
-
   return (
-    <aside className="w-72 shrink-0 h-screen flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-      <div className="p-4 border-b border-sidebar-border">
+    <>
+      {open && (
+        <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden" onClick={onClose} />
+      )}
+      <aside
+        className={`w-72 shrink-0 h-screen flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground fixed inset-y-0 left-0 z-50 transition-transform md:static md:translate-x-0 ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+      <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
         <CogniaLogo />
+        <button onClick={onClose} className="md:hidden p-1 rounded-lg hover:bg-sidebar-accent" aria-label="Fechar menu">
+          <X className="w-4 h-4" />
+        </button>
       </div>
+
 
       <div className="p-3">
         <Link
@@ -162,21 +165,22 @@ export function AppSidebar() {
         ))}
 
         <div className="mt-4 border-t border-sidebar-border pt-3">
-          {navItems.map((n) => (
-            <button
-              key={n.label}
-              className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent transition-colors"
-            >
-              <n.icon className="w-4 h-4" />
-              {n.label}
-            </button>
-          ))}
+          <Link
+            to="/library"
+            onClick={onClose}
+            className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent transition-colors"
+            activeProps={{ className: "bg-sidebar-accent text-sidebar-foreground" }}
+          >
+            <Library className="w-4 h-4" />
+            Biblioteca
+          </Link>
         </div>
       </div>
 
       <div className="border-t border-sidebar-border p-3 space-y-1">
         <Link
           to="/settings"
+          onClick={onClose}
           className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm hover:bg-sidebar-accent transition-colors"
         >
           <Settings className="w-4 h-4" />
@@ -202,7 +206,8 @@ export function AppSidebar() {
           </div>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
 
